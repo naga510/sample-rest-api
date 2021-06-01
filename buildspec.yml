@@ -1,0 +1,16 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 190493557790.dkr.ecr.us-east-1.amazonaws.com
+  build:
+    commands:
+      - docker build -t greetings-repo .
+      - docker tag greetings-repo:latest 190493557790.dkr.ecr.us-east-1.amazonaws.com/greetings-repo:latest
+  post_build:
+    commands:
+      - docker push 190493557790.dkr.ecr.us-east-1.amazonaws.com/greetings-repo:latest
+      - printf '[{"name":"greetings-task-definition","imageUri":"%s"}]' 190493557790.dkr.ecr.us-east-1.amazonaws.com/greetings-repo > imagedefinitions.json
+artifacts:
+  files: imagedefinitions.json
